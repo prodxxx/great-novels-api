@@ -8,11 +8,16 @@ const getAllNovels = async (request, response) => {
   return response.send(novels)
 }
 
-const getNovelById = async (request, response) => {
-  const { id } = request.params
+const getNovelByIdOrTitle = async (request, response) => {
+  const { identifier } = request.params
 
   const novel = await models.Novels.findOne({
-    where: { id },
+    where: {
+      [models.Sequelize.Op.or]: [
+        { id: identifier },
+        { title: { [models.Sequelize.Op.like]: `%${identifier}%` } },
+      ]
+    },
     include: [{ model: models.Authors }, { model: models.Genres }]
   })
 
@@ -21,4 +26,4 @@ const getNovelById = async (request, response) => {
     : response.sendStatus(404)
 }
 
-module.exports = { getAllNovels, getNovelById }
+module.exports = { getAllNovels, getNovelByIdOrTitle }
