@@ -12,12 +12,17 @@ const getAllNovels = async (request, response) => {
   }
 }
 
-const getNovelsById = async (request, response) => {
+const getNovelsByIdentifier = async (request, response) => {
   try {
-    const { id } = request.params
+    const { identifier } = request.params
 
     const foundNovel = await models.novels.findOne({
-      where: { id },
+      where: {
+        [models.Op.or]: [
+          { id: identifier },
+          { title: { [models.Op.like]: `%${identifier}%` } },
+        ],
+      },
       include: [{ model: models.authors }, { model: models.genres }]
     })
 
@@ -29,5 +34,4 @@ const getNovelsById = async (request, response) => {
   }
 }
 
-module.exports = { getAllNovels, getNovelsById }
-
+module.exports = { getAllNovels, getNovelsByIdentifier }

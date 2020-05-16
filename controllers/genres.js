@@ -10,12 +10,17 @@ const getAllGenres = async (request, response) => {
   }
 }
 
-const getGenresById = async (request, response) => {
+const getGenresByidentifier = async (request, response) => {
   try {
-    const { id } = request.params
+    const { identifier } = request.params
 
     const foundGenre = await models.genres.findOne({
-      where: { id },
+      where: {
+        [models.Op.or]: [
+          { id: identifier },
+          { name: { [models.Op.like]: `%${identifier}%` } },
+        ],
+      },
       include: [{
         model: models.novels,
         include: [{ model: models.authors }]
@@ -30,4 +35,4 @@ const getGenresById = async (request, response) => {
   }
 }
 
-module.exports = { getAllGenres, getGenresById }
+module.exports = { getAllGenres, getGenresByidentifier }
